@@ -92,7 +92,9 @@ class WebDriver:
         service = Service(log_path=os.path.devnull)
 
         return webdriver.Firefox(
-            options=options, firefox_profile=profile, service=service,
+            options=options,
+            firefox_profile=profile,
+            service=service,
         )
 
     def _init_requests(self):
