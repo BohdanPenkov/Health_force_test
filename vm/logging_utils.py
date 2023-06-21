@@ -1,3 +1,6 @@
+"""
+This module contains utilities for setting up the logger.
+"""
 import logging
 from logging.handlers import RotatingFileHandler
 
@@ -20,7 +23,9 @@ def setup_logger(level: str, log_file: str = 'logfile.log', jsonlogger=None):
 
     # Create a file handler for writing logs to a file with rotation
     # 2KB per file, keeping the last 10 files
-    file_handler = RotatingFileHandler(log_file, maxBytes=2000, backupCount=10)
+    file_handler = RotatingFileHandler(
+        log_file, maxBytes=2000, backupCount=10
+    )
 
     # Use a JSON formatter for structured logging
     formatter = jsonlogger.JsonFormatter()
@@ -29,7 +34,9 @@ def setup_logger(level: str, log_file: str = 'logfile.log', jsonlogger=None):
     # Add the file handler to the logger
     logger.addHandler(file_handler)
 
-    for library in ("urllib3", "websockets", "pyppeteer", "asyncio", "selenium"):
+    for library in (
+            "urllib3", "websockets", "pyppeteer", "asyncio", "selenium"
+    ):
         logging.getLogger(library).setLevel(logging.CRITICAL)
 
     return logger

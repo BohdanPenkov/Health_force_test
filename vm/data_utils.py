@@ -15,6 +15,9 @@ logger = logging.getLogger(__name__)
 
 
 class Insurance(Enum):
+    """
+    Enum for the accepted insurances.
+    """
     QUAS = "QUAS"
     QUAS_PENSIONATI = "QUAS-PENSIONATI"
 
@@ -53,7 +56,8 @@ def create_df_from_excel(
         accepted_insurances (tuple[str]): A tuple of accepted insurances.
         result_file (str): The path to the result file.
         path_cat_code (str): The path to the file containing the cat codes.
-        path_file_second_pnr (str): The path to the file containing the second PNR.
+        path_file_second_pnr (str): The path to the file containing
+                                    the second PNR.
 
     Returns:
         None
@@ -99,7 +103,9 @@ def create_df_from_excel(
     df_patients.to_csv(result_file)
 
 
-def add_cat_code(df_patients: pd.DataFrame, path_cat_code: str) -> pd.DataFrame:
+def add_cat_code(
+        df_patients: pd.DataFrame, path_cat_code: str
+) -> pd.DataFrame:
     """
     Add the cat code to the dataframe
 
@@ -118,11 +124,16 @@ def add_cat_code(df_patients: pd.DataFrame, path_cat_code: str) -> pd.DataFrame:
     try:
         xls = pd.ExcelFile(path_cat_code)
         if 'Codice' not in xls.sheet_names:
-            logger.error(f"Sheet 'Codice' not found in the file at {path_cat_code}")
+            logger.error(
+                f"Sheet 'Codice' not "
+                f"found in the file at {path_cat_code}"
+            )
             return df_patients
         df_cat_code = pd.read_excel(xls, "Codice")
     except Exception as e:
-        logger.error(f"An error occurred while reading from the file at path {path_cat_code}: {e}")
+        logger.error(
+            f"An error occurred while reading "
+            f"from the file at path {path_cat_code}: {e}")
         return df_patients
 
     required_columns = ['Codice Esame SAP', 'ID prestazioni']
@@ -142,7 +153,9 @@ def add_cat_code(df_patients: pd.DataFrame, path_cat_code: str) -> pd.DataFrame:
         right_on="Codice Esame SAP",
         how="left",
     )
-    joined["type_prestazioni"] = joined["ID prestazioni"].map(DICT_PRESTAZIONNE)
+    joined["type_prestazioni"] = joined["ID prestazioni"].map(
+        DICT_PRESTAZIONNE
+    )
 
     nb_patient_after = len(joined.index)
 
@@ -253,12 +266,16 @@ def add_check_2nd_pnr(
         "second_pnr"
     ] = True
     df_patients.loc[
-        filtered_srt[filtered_srt["Esame"].isin(list_2nd_pnr_srt)].index,
+        filtered_srt[filtered_srt["Esame"].isin(
+            list_2nd_pnr_srt
+        )].index,
         "second_pnr"
     ] = True
 
     second_pnr_count = df_patients["second_pnr"].value_counts()
-    nb_second_pnr = 0 if True not in second_pnr_count else second_pnr_count[True]
+    nb_second_pnr = (
+        0 if True not in second_pnr_count else second_pnr_count[True]
+    )
     logger.debug(f"{nb_second_pnr} patients need a second pnr")
     return df_patients
 
@@ -324,7 +341,11 @@ def add_pnr_to_df(df_patients: pd.DataFrame) -> pd.DataFrame:
     # df_patients["PNR"].fillna("").apply(list)
 
     idx = df_patients["PNR"].isna()
-    df_patients.loc[idx, "PNR"] = df_patients.loc[idx, "PNR"].fillna("[]").apply(eval)
+    df_patients.loc[idx, "PNR"] = df_patients.loc[idx, "PNR"].fillna(
+        "[]"
+    ).apply(
+        eval
+    )
 
     nb_patient_after = len(df_patients.index)
     nb_patient_after = len(df_patients.index)
@@ -350,17 +371,27 @@ def prepare_params(config, date, path_dir_data):
     Returns:
         dict: A dictionary with the prepared parameters.
     """
-    input_file = os.path.join(path_dir_data, config["path"]["filename_input"])
-    output_file = os.path.join(path_dir_data, config["path"]["filename_output"])
+    input_file = os.path.join(
+        path_dir_data, config["path"]["filename_input"]
+    )
+    output_file = os.path.join(
+        path_dir_data, config["path"]["filename_output"]
+    )
 
     path_file_excel_next_appointments = os.path.join(
         os.path.expanduser(config["path"]["path_file_input"]),
         input_file
     )
-    path_file_second_pnr = os.path.expanduser(config["path"]["path_file_second_pnr"])
-    path_cat_code = os.path.expanduser(config["path"]["path_cat_code"])
+    path_file_second_pnr = os.path.expanduser(
+        config["path"]["path_file_second_pnr"]
+    )
+    path_cat_code = os.path.expanduser(
+        config["path"]["path_cat_code"]
+    )
     result_file = os.path.join(
-        os.path.expanduser(config["path"]["path_file_output"].format(date=date)),
+        os.path.expanduser(
+            config["path"]["path_file_output"].format(date=date)
+        ),
         output_file
     )
 
@@ -368,7 +399,9 @@ def prepare_params(config, date, path_dir_data):
         "path_file_excel_next_appointments": path_file_excel_next_appointments,
         "path_file_second_pnr": path_file_second_pnr,
         "path_cat_code": path_cat_code,
-        "accepted_insurances": (Insurance.QUAS.value, Insurance.QUAS_PENSIONATI.value),
+        "accepted_insurances": (
+            Insurance.QUAS.value, Insurance.QUAS_PENSIONATI.value
+        ),
         "result_file": result_file,
     }
 
